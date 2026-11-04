@@ -9,7 +9,7 @@ public class WarehouseService: IWarehouseService
 {
     private readonly IBaseRepository<Entities.Warehouse> _warehouseRepository;
 
-    public WarehouseService(IBaseRepository<Entities.Warehouse> warehouseRepository, IMapper mapper)
+    public WarehouseService(IBaseRepository<Entities.Warehouse> warehouseRepository)
     {
         _warehouseRepository = warehouseRepository;
     }
