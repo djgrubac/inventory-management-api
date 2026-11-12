@@ -17,7 +17,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
-    <!-- Kept on 9.0.x: 10.0 moves to Microsoft.OpenApi 2.x, which Swashbuckle 7 and Program.cs do not support yet. -->
+    <!-- Kept on 9.0.x: 10.0 moves to Microsoft.OpenApi 2.x, which Swashbuckle 9 and Program.cs do not support yet. -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.22" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.14" />
@@ -47,9 +47,10 @@
     <PackageVersion Include="NUnit.Analyzers" Version="3.9.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="Respawn" Version="6.2.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
+    <!-- 9.x: its bundled Swagger UI accepts "openapi: 3.0.4" (emitted by Microsoft.OpenApi >= 1.6.24); 7.2 rejected it. Stay < 10 until on Microsoft.OpenApi 2.x. -->
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.6" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.6" />
     <PackageVersion Include="Testcontainers.MsSql" Version="3.9.0" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.46.0" />
     <PackageVersion Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />

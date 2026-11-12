@@ -28,6 +28,7 @@ builder.Services.AddEndpointsApiExplorer(); // Enable endpoint routing discovery
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+    options.EnableAnnotations(); // picks up [SwaggerOperation] summaries/descriptions on controllers
 });
 
 var app = builder.Build();
