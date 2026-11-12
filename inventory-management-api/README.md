@@ -1,6 +1,6 @@
 ﻿# Inventory_Management
 
-[![CI](https://github.com/djgrubac/inventory-management-api/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/djgrubac/inventory-management-api/actions/workflows/ci.yml)
+[![CI](https://github.com/djgrubac/inventory-management-api/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/djgrubac/inventory-management-api/actions/workflows/ci.yml)
 
 The project was generated using the [Clean.Architecture.Solution.Template](https://github.com/jasontaylordev/Inventory_Management) version 8.0.6.
 
@@ -58,7 +58,7 @@ dotnet test
 
 ## CI
 
-GitHub Actions ([.github/workflows/ci.yml](../.github/workflows/ci.yml), at the repo root) runs on every pull request to `master` and every push to `master`. It:
+GitHub Actions ([.github/workflows/ci.yml](../.github/workflows/ci.yml), at the repo root) runs on every pull request to `develop` or `master` and every push to `develop` or `master` (`develop` is the default branch). It:
 
 1. Restores and builds the solution in Release (warnings are treated as errors).
 2. Runs all unit and integration tests and uploads the test results and coverage as the `test-results` artifact.
