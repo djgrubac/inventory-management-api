@@ -19,7 +19,7 @@ public class ChangeOrderStatusCommandHandlerTests
     {
         _orderRepository = new Mock<IOrderRepository>();
         _stockRepository = new Mock<IStockRepository>();
-        _handler = new ChangeOrderStatusCommandHandler(_orderRepository.Object, _stockRepository.Object);
+        _handler = new ChangeOrderStatusCommandHandler(_orderRepository.Object, _stockRepository.Object, TestAccess.Administrator());
         _warehouse = new Entities.Warehouse { Id = 7, Name = "Main" };
     }
 

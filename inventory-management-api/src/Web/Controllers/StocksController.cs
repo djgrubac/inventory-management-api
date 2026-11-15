@@ -1,4 +1,6 @@
 using Inventory_Management.Application.Common.Models;
+using Inventory_Management.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.WarehouseStock.Commands;
 using Microsoft.Extensions.DependencyInjection.WarehouseStock.Queries;
@@ -10,6 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = $"{Roles.Administrator},{Roles.Manager},{Roles.Staff}")]
 public class StocksController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -45,7 +48,6 @@ public class StocksController : ControllerBase
     
     // PUT /api/stocks/adjust
     [HttpPut("adjust")]
-    // [Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
     [SwaggerOperation(Summary = "Adjust quatity", Description = "Adjust quatity of a stock")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -3,6 +3,7 @@
     using Inventory_Management.Domain.Constants;
     using Inventory_Management.Infrastructure.Data;
     using Inventory_Management.Infrastructure.Data.Interceptors;
+    using Inventory_Management.Infrastructure.Email;
     using Inventory_Management.Infrastructure.Identity;
     using Inventory_Management.Infrastructure.Repositories;
     using InventoryManagement.Core.Interfaces;
@@ -56,6 +57,14 @@
             services.AddScoped<IStockRepository, StockRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            services.AddScoped<IAppUserRepository, AppUserRepository>();
+
+            var emailSection = configuration.GetSection(EmailOptions.SectionName);
+            services.Configure<EmailOptions>(emailSection);
+            if (string.IsNullOrWhiteSpace(emailSection[$"{nameof(EmailOptions.Smtp)}:{nameof(EmailOptions.SmtpOptions.Host)}"]))
+                services.AddTransient<IEmailSender, LoggingEmailSender>();
+            else
+                services.AddTransient<IEmailSender, SmtpEmailSender>();
 
             return services;
         }

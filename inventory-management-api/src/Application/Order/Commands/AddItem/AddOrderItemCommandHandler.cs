@@ -1,5 +1,6 @@
 using ValidationException = Inventory_Management.Application.Common.Exceptions.ValidationException;
 using Inventory_Management.Application.Common.Interfaces;
+using Inventory_Management.Application.Common.Security;
 using Inventory_Management.Domain.Enums;
 using InventoryManagement.Core.Interfaces;
 using Entities = Inventory_Management.Domain.Entities;
@@ -10,13 +11,16 @@ public class AddOrderItemCommandHandler : IRequestHandler<AddOrderItemCommand>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IBaseRepository<Entities.Product> _productRepository;
+    private readonly ICurrentUserAccess _access;
 
     public AddOrderItemCommandHandler(
         IOrderRepository orderRepository,
-        IBaseRepository<Entities.Product> productRepository)
+        IBaseRepository<Entities.Product> productRepository,
+        ICurrentUserAccess access)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
+        _access = access;
     }
 
     public async Task Handle(AddOrderItemCommand request, CancellationToken cancellationToken)
@@ -24,6 +28,7 @@ public class AddOrderItemCommandHandler : IRequestHandler<AddOrderItemCommand>
         // Validate order exists
         var order = await _orderRepository.GetByUidAsync(request.OrderUid)
                     ?? throw new NotFoundException(request.OrderUid.ToString(), "Order");
+        _access.EnsureCanWrite(order.WarehouseId, request.OrderUid.ToString(), "Order");
 
         // Only pending orders can be edited
         if (order.Status != OrderStatus.Pending)

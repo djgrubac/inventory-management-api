@@ -17,11 +17,101 @@ namespace Inventory_Management.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Inventory_Management.Domain.Entities.AppRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
+                    b.Property<Guid>("Uid")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Administrator",
+                            Uid = new Guid("6f1c0b6e-3a51-4b8e-9a63-2a7d8f0e1a01")
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Manager",
+                            Uid = new Guid("6f1c0b6e-3a51-4b8e-9a63-2a7d8f0e1a02")
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Staff",
+                            Uid = new Guid("6f1c0b6e-3a51-4b8e-9a63-2a7d8f0e1a03")
+                        });
+                });
+
+            modelBuilder.Entity("Inventory_Management.Domain.Entities.AppUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Auth0UserId")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("citext");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("citext");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("citext");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("citext");
+
+                    b.Property<int?>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("Uid")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Auth0UserId")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Users", (string)null);
+                });
 
             modelBuilder.Entity("Inventory_Management.Domain.Entities.Category", b =>
                 {
@@ -228,6 +318,49 @@ namespace Inventory_Management.Infrastructure.Migrations
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("Stocks");
+                });
+
+            modelBuilder.Entity("Inventory_Management.Domain.Entities.UserWarehousePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("citext");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("citext");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("Uid")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WarehouseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.HasIndex("UserId", "WarehouseId")
+                        .IsUnique();
+
+                    b.ToTable("UserWarehousePermissions");
                 });
 
             modelBuilder.Entity("Inventory_Management.Domain.Entities.Warehouse", b =>
@@ -466,6 +599,16 @@ namespace Inventory_Management.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Inventory_Management.Domain.Entities.AppUser", b =>
+                {
+                    b.HasOne("Inventory_Management.Domain.Entities.AppRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Inventory_Management.Domain.Entities.Order", b =>
                 {
                     b.HasOne("Inventory_Management.Domain.Entities.Warehouse", "Warehouse")
@@ -526,6 +669,25 @@ namespace Inventory_Management.Infrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("Inventory_Management.Domain.Entities.UserWarehousePermission", b =>
+                {
+                    b.HasOne("Inventory_Management.Domain.Entities.AppUser", "User")
+                        .WithMany("WarehousePermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Inventory_Management.Domain.Entities.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("Warehouse");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -575,6 +737,11 @@ namespace Inventory_Management.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Inventory_Management.Domain.Entities.AppUser", b =>
+                {
+                    b.Navigation("WarehousePermissions");
                 });
 
             modelBuilder.Entity("Inventory_Management.Domain.Entities.Category", b =>

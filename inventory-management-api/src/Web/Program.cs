@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices();  // Assuming this includes services like sender, etc.
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
+builder.Services.AddAuth0(builder.Configuration);
 
 // Allow the local Vite dev server to call this API from the browser.
 builder.Services.AddCors(options =>
@@ -29,6 +30,17 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
     options.EnableAnnotations(); // picks up [SwaggerOperation] summaries/descriptions on controllers
+
+    // Lets an Auth0 access token be pasted into Swagger UI via the Authorize button.
+    var bearerScheme = new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+    };
+    options.AddSecurityDefinition("Bearer", bearerScheme);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement { [bearerScheme] = Array.Empty<string>() });
 });
 
 var app = builder.Build();

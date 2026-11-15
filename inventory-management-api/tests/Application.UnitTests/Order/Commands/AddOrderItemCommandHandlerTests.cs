@@ -19,7 +19,7 @@ public class AddOrderItemCommandHandlerTests
     {
         _orderRepository = new Mock<IOrderRepository>();
         _productRepository = new Mock<IBaseRepository<Entities.Product>>();
-        _handler = new AddOrderItemCommandHandler(_orderRepository.Object, _productRepository.Object);
+        _handler = new AddOrderItemCommandHandler(_orderRepository.Object, _productRepository.Object, TestAccess.Administrator());
     }
 
     [Test]

@@ -1,4 +1,5 @@
 using Inventory_Management.Application.Common.Interfaces;
+using Inventory_Management.Application.Common.Security;
 using Inventory_Management.Domain.Entities;
 using InventoryManagement.Core.Interfaces;
 using Entities = Inventory_Management.Domain.Entities;
@@ -10,17 +11,20 @@ public class AdjustStockCommandHandler : IRequestHandler<AdjustStockCommand>
     private readonly IStockRepository _stockRepository;
     private readonly IBaseRepository<Entities.Warehouse> _warehouseRepository;
     private readonly IBaseRepository<Entities.Product> _productRepository;
+    private readonly ICurrentUserAccess _access;
 
     public AdjustStockCommandHandler
     (
         IStockRepository stockRepository, 
         IBaseRepository<Entities.Warehouse> warehouseRepository, 
-        IBaseRepository<Entities.Product> productRepository
+        IBaseRepository<Entities.Product> productRepository,
+        ICurrentUserAccess access
     )
     {
         _stockRepository = stockRepository;
         _warehouseRepository = warehouseRepository;
         _productRepository = productRepository;
+        _access = access;
     }
 
     public async Task Handle(AdjustStockCommand request, CancellationToken cancellationToken)
@@ -31,6 +35,7 @@ public class AdjustStockCommandHandler : IRequestHandler<AdjustStockCommand>
         {
             var warehouse = await _warehouseRepository.GetByUidAsync(request.WarehouseUid)
                             ?? throw new NotFoundException("Warehouse", request.WarehouseUid.ToString());
+            _access.EnsureCanWrite(warehouse.Id, request.WarehouseUid.ToString(), "Warehouse");
 
             var product = await _productRepository.GetByUidAsync(request.ProductUid)
                           ?? throw new NotFoundException("Product", request.ProductUid.ToString());
@@ -46,6 +51,7 @@ public class AdjustStockCommandHandler : IRequestHandler<AdjustStockCommand>
         }
         else
         {
+            _access.EnsureCanWrite(stock.WarehouseId, request.WarehouseUid.ToString(), "Warehouse");
             stock.Quantity = request.NewQuantity;
             await _stockRepository.UpdateAsync(stock);
         }

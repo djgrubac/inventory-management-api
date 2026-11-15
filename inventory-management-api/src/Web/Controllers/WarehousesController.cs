@@ -1,3 +1,5 @@
+using Inventory_Management.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Warehouse.Commands;
 using Microsoft.Extensions.DependencyInjection.Warehouse.Commands.Update;
@@ -9,6 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = $"{Roles.Administrator},{Roles.Manager},{Roles.Staff}")]
 public class WarehousesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -19,7 +22,6 @@ public class WarehousesController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
     [SwaggerOperation(Summary = "Get all warehouses", Description = "Retrieve a list of all warehouses.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -30,7 +32,6 @@ public class WarehousesController : ControllerBase
     }
 
     [HttpGet("{uid}")]
-    // [Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
     [SwaggerOperation(Summary = "Get warehouse by Uid", Description = "Retrieve the details of a specific warehouse by Uid.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,7 +43,7 @@ public class WarehousesController : ControllerBase
     }
 
     [HttpPost]
-    // [Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
+    [Authorize(Roles = Roles.Administrator)]
     [SwaggerOperation(Summary = "Add warehouse", Description = "Create a new warehouse.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -54,7 +55,7 @@ public class WarehousesController : ControllerBase
     }
 
     [HttpPut("{uid:guid}")]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = $"{Roles.Administrator},{Roles.Manager}")]
     [SwaggerOperation(Summary = "Update warehouse", Description = "Update an existing warehouse by Uid.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

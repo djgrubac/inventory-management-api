@@ -1,5 +1,6 @@
 using Inventory_Management.Application.Common.Interfaces;
 using Inventory_Management.Application.Common.Models;
+using Inventory_Management.Application.Common.Security;
 using Inventory_Management.Domain.Entities;
 
 namespace Microsoft.Extensions.DependencyInjection.WarehouseStock.Queries.GetCollection;
@@ -7,15 +8,23 @@ namespace Microsoft.Extensions.DependencyInjection.WarehouseStock.Queries.GetCol
 public class GetStocksQueryHandler : IRequestHandler<GetStocksQuery, GetsStocksResult>
 {
     private readonly IStockRepository _stockRepository;
+    private readonly ICurrentUserAccess _access;
 
-    public GetStocksQueryHandler(IStockRepository stockRepository)
+    public GetStocksQueryHandler(IStockRepository stockRepository, ICurrentUserAccess access)
     {
         _stockRepository = stockRepository;
+        _access = access;
     }
     
     public async Task<GetsStocksResult> Handle(GetStocksQuery request, CancellationToken cancellationToken)
     {
         var query = _stockRepository.Query();
+
+        if (!_access.IsAdministrator)
+        {
+            var warehouseIds = _access.ReadableWarehouseIds();
+            query = query.Where(s => warehouseIds.Contains(s.WarehouseId));
+        }
         
         if (request.WarehouseUid.HasValue)
             query = query.Where(s => s.Warehouse.Uid == request.WarehouseUid.Value);

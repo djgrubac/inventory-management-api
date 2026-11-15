@@ -1,3 +1,5 @@
+using Inventory_Management.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Product.Commands.Create;
 using Microsoft.Extensions.DependencyInjection.Product.Commands.Delete;
@@ -9,6 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Microsoft.Extensions.DependencyInjection.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize(Roles = $"{Roles.Administrator},{Roles.Manager},{Roles.Staff}")]
 public class ProductsController: ControllerBase
 {
     private readonly IMediator _mediator;
@@ -19,7 +22,6 @@ public class ProductsController: ControllerBase
     }
     
     [HttpGet]
-    //[Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
     [SwaggerOperation(Summary = "Get all products", Description = "Retrieve a list of all products.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -30,7 +32,6 @@ public class ProductsController: ControllerBase
     }
 
     [HttpGet("{uid}")]
-    // [Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
     [SwaggerOperation(Summary = "Get product by Uid", Description = "Retrieve the details of a specific product by Uid.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,7 +43,7 @@ public class ProductsController: ControllerBase
     }
 
     [HttpPost]
-    // [Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
+    [Authorize(Roles = $"{Roles.Administrator},{Roles.Manager}")]
     [SwaggerOperation(Summary = "Add product", Description = "Create a new product.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -54,7 +55,7 @@ public class ProductsController: ControllerBase
     }
 
     [HttpPut("{uid:guid}")]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = $"{Roles.Administrator},{Roles.Manager}")]
     [SwaggerOperation(Summary = "Update product", Description = "Update an existing product by Uid.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -73,7 +74,7 @@ public class ProductsController: ControllerBase
     }
     
     [HttpDelete("{uid:guid}")]
-    // [Authorize/*(Roles = "Admin")*/] // Uncomment if admin-only access is required
+    [Authorize(Roles = Roles.Administrator)]
     [SwaggerOperation(Summary = "Remove product", Description = "Delete a product. Refused with 400 if the product appears on an order or a warehouse still holds stock of it.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

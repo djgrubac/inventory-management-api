@@ -1,3 +1,4 @@
+using Inventory_Management.Application.Common.Exceptions;
 using Inventory_Management.Application.Common.Interfaces;
 using Inventory_Management.Domain.Enums;
 using InventoryManagement.Core.Interfaces;
@@ -17,7 +18,7 @@ public class OrderCreateCommandHandlerTests
     {
         _orderRepository = new Mock<IOrderRepository>();
         _warehouseRepository = new Mock<IBaseRepository<Entities.Warehouse>>();
-        _handler = new OrderCreateCommandHandler(_orderRepository.Object, _warehouseRepository.Object);
+        _handler = new OrderCreateCommandHandler(_orderRepository.Object, _warehouseRepository.Object, TestAccess.Administrator());
     }
 
     [Test]
@@ -47,5 +48,45 @@ public class OrderCreateCommandHandlerTests
 
         await act.Should().ThrowAsync<ArgumentException>();
         _orderRepository.Verify(r => r.AddAsync(It.IsAny<Entities.Order>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_StaffWithReadOnly_ThrowsForbiddenAndDoesNotAddOrder()
+    {
+        var warehouse = new Entities.Warehouse { Id = 1, Name = "Main" };
+        _warehouseRepository.Setup(r => r.GetByUidAsync(warehouse.Uid)).ReturnsAsync(warehouse);
+        var handler = new OrderCreateCommandHandler(_orderRepository.Object, _warehouseRepository.Object,
+            TestAccess.Staff(5, (1, WarehousePermission.Read)));
+
+        var act = () => handler.Handle(new OrderCreateCommand(OrderType.Incoming, warehouse.Uid), CancellationToken.None);
+
+        await act.Should().ThrowAsync<ForbiddenAccessException>();
+        _orderRepository.Verify(r => r.AddAsync(It.IsAny<Entities.Order>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Handle_StaffWithoutPermission_ThrowsNotFound()
+    {
+        var warehouse = new Entities.Warehouse { Id = 1, Name = "Main" };
+        _warehouseRepository.Setup(r => r.GetByUidAsync(warehouse.Uid)).ReturnsAsync(warehouse);
+        var handler = new OrderCreateCommandHandler(_orderRepository.Object, _warehouseRepository.Object,
+            TestAccess.Staff(5, (2, WarehousePermission.Write)));
+
+        var act = () => handler.Handle(new OrderCreateCommand(OrderType.Incoming, warehouse.Uid), CancellationToken.None);
+
+        await act.Should().ThrowAsync<Ardalis.GuardClauses.NotFoundException>();
+    }
+
+    [Test]
+    public async Task Handle_StaffWithWrite_AddsOrder()
+    {
+        var warehouse = new Entities.Warehouse { Id = 1, Name = "Main" };
+        _warehouseRepository.Setup(r => r.GetByUidAsync(warehouse.Uid)).ReturnsAsync(warehouse);
+        var handler = new OrderCreateCommandHandler(_orderRepository.Object, _warehouseRepository.Object,
+            TestAccess.Staff(5, (1, WarehousePermission.Write)));
+
+        await handler.Handle(new OrderCreateCommand(OrderType.Incoming, warehouse.Uid), CancellationToken.None);
+
+        _orderRepository.Verify(r => r.AddAsync(It.IsAny<Entities.Order>()), Times.Once);
     }
 }

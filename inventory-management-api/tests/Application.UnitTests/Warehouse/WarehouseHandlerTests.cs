@@ -44,7 +44,7 @@ public class WarehouseHandlerTests
         var warehouse = new Entities.Warehouse { Id = 1, Name = "Old", Address = "Old", ContactPerson = "Old", Company = "Old" };
         _warehouseRepository.Setup(r => r.GetByUidAsync(warehouse.Uid)).ReturnsAsync(warehouse);
 
-        await new WarehouseUpdateCommandHandler(_warehouseRepository.Object)
+        await new WarehouseUpdateCommandHandler(_warehouseRepository.Object, TestAccess.Administrator())
             .Handle(new WarehouseUpdateCommand(warehouse.Uid, "New", "Addr", "Bob", "Corp"), CancellationToken.None);
 
         warehouse.Name.Should().Be("New");
@@ -57,7 +57,7 @@ public class WarehouseHandlerTests
     [Test]
     public async Task Update_WarehouseMissing_ThrowsKeyNotFoundException()
     {
-        var act = () => new WarehouseUpdateCommandHandler(_warehouseRepository.Object)
+        var act = () => new WarehouseUpdateCommandHandler(_warehouseRepository.Object, TestAccess.Administrator())
             .Handle(new WarehouseUpdateCommand(Guid.NewGuid(), "New", null, null, null), CancellationToken.None);
 
         await act.Should().ThrowAsync<KeyNotFoundException>();
@@ -69,7 +69,7 @@ public class WarehouseHandlerTests
         var warehouse = new Entities.Warehouse { Id = 1, Name = "Main", Address = "Street 1", ContactPerson = "Ana", Company = "Acme" };
         _warehouseRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(new[] { warehouse });
 
-        var result = await new GetWarehousesQueryHandler(_warehouseRepository.Object)
+        var result = await new GetWarehousesQueryHandler(_warehouseRepository.Object, TestAccess.Administrator())
             .Handle(new GetWarehousesQuery(), CancellationToken.None);
 
         var dto = result.Should().ContainSingle().Subject;
@@ -81,7 +81,7 @@ public class WarehouseHandlerTests
     [Test]
     public async Task GetById_WarehouseMissing_ReturnsNull()
     {
-        var dto = await new GetWarehouseByIdQueryHandler(_warehouseRepository.Object)
+        var dto = await new GetWarehouseByIdQueryHandler(_warehouseRepository.Object, TestAccess.Administrator())
             .Handle(new GetWarehouseByIdQuery(Guid.NewGuid()), CancellationToken.None);
 
         dto.Should().BeNull();

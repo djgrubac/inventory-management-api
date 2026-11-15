@@ -1,6 +1,8 @@
 using Inventory_Management.Application.Common.Models;
 using Inventory_Management.Domain.Enums;
 using MediatR;
+using Inventory_Management.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Order.Commands.AddItem;
 using Microsoft.Extensions.DependencyInjection.Order.Commands.ChangeStatus;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Order.Queries.GetSingle;
 namespace Inventory_Management.API.Controllers;
 
 [ApiController]
+[Authorize(Roles = $"{Roles.Administrator},{Roles.Manager},{Roles.Staff}")]
 [Route("api/[controller]")]
 public class OrdersController : ControllerBase
 {
