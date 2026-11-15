@@ -138,8 +138,18 @@ public class GetStocksQueryHandlerTests : IntegrationTestBase
         dto.Product.Description.Should().Be("Hammer description");
     }
 
-    private async Task<GetsStocksResult> Handle(GetStocksQuery query) =>
-        await new GetStocksQueryHandler(new StockRepository(CreateContext())).Handle(query, CancellationToken.None);
+    [Test]
+    public async Task Handle_StaffWithOneWarehouse_ReturnsOnlyThatWarehouse()
+    {
+        var staff = TestAccess.Staff(5, (_beta.Id, WarehousePermission.Write));
+
+        var result = await Handle(new GetStocksQuery(), staff);
+
+        Keys(result).Should().Equal(("Beta", "Hammer"), ("Beta", "Rake"));
+    }
+
+    private async Task<GetsStocksResult> Handle(GetStocksQuery query, TestAccess? access = null) =>
+        await new GetStocksQueryHandler(new StockRepository(CreateContext()), access ?? TestAccess.Administrator()).Handle(query, CancellationToken.None);
 
     private static IEnumerable<(string?, string?)> Keys(GetsStocksResult result) =>
         result.Stocks!.Select(s => (s.Warehouse.Name, s.Product.Name));

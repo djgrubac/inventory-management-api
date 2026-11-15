@@ -1,5 +1,6 @@
 using ValidationException = Inventory_Management.Application.Common.Exceptions.ValidationException;
 using Inventory_Management.Application.Common.Interfaces;
+using Inventory_Management.Application.Common.Security;
 using Inventory_Management.Domain.Entities;
 using Inventory_Management.Domain.Enums;
 using Entities = Inventory_Management.Domain.Entities;
@@ -11,19 +12,23 @@ public class ChangeOrderStatusCommandHandler : IRequestHandler<ChangeOrderStatus
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IStockRepository _stockRepository;
+    private readonly ICurrentUserAccess _access;
 
     public ChangeOrderStatusCommandHandler(
         IOrderRepository orderRepository,
-        IStockRepository stockRepository)
+        IStockRepository stockRepository,
+        ICurrentUserAccess access)
     {
         _orderRepository = orderRepository;
         _stockRepository = stockRepository;
+        _access = access;
     }
 
     public async Task Handle(ChangeOrderStatusCommand request, CancellationToken ct)
     {
         var order = await _orderRepository.GetByUidAsync(request.OrderUid)
             ?? throw new NotFoundException(request.OrderUid.ToString(), "Order");
+        _access.EnsureCanWrite(order.WarehouseId, request.OrderUid.ToString(), "Order");
 
         // Completed and cancelled orders are terminal
         if (order.Status is OrderStatus.Completed or OrderStatus.Cancelled)

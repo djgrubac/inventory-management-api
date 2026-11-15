@@ -159,8 +159,28 @@ public class GetOrdersQueryHandlerTests : IntegrationTestBase
             .Should().BeEquivalentTo(new[] { ("Hammer", 2, 10m, 20m), ("Saw", 3, 25m, 75m) });
     }
 
-    private async Task<GetOrdersResult> Handle(GetOrdersQuery query) =>
-        await new GetOrdersQueryHandler(new OrderRepository(CreateContext())).Handle(query, CancellationToken.None);
+    [Test]
+    public async Task Handle_StaffWithOneWarehouse_ReturnsOnlyThatWarehouse()
+    {
+        var staff = TestAccess.Staff(5, (_north.Id, WarehousePermission.Read));
+
+        var result = await Handle(new GetOrdersQuery(), staff);
+
+        Uids(result).Should().Equal(_o5.Uid, _o3.Uid, _o1.Uid);
+        result.TotalCount.Should().Be(3);
+    }
+
+    [Test]
+    public async Task Handle_StaffWithoutWarehouses_ReturnsNothing()
+    {
+        var result = await Handle(new GetOrdersQuery(), TestAccess.Staff(5));
+
+        result.Orders.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
+    }
+
+    private async Task<GetOrdersResult> Handle(GetOrdersQuery query, TestAccess? access = null) =>
+        await new GetOrdersQueryHandler(new OrderRepository(CreateContext()), access ?? TestAccess.Administrator()).Handle(query, CancellationToken.None);
 
     private static IEnumerable<Guid> Uids(GetOrdersResult result) => result.Orders!.Select(o => o.Uid);
 

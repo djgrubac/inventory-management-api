@@ -16,7 +16,7 @@ public class RemoveOrderItemCommandHandlerTests
     public void Setup()
     {
         _orderRepository = new Mock<IOrderRepository>();
-        _handler = new RemoveOrderItemCommandHandler(_orderRepository.Object);
+        _handler = new RemoveOrderItemCommandHandler(_orderRepository.Object, TestAccess.Administrator());
     }
 
     [Test]

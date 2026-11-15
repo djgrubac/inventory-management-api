@@ -19,7 +19,7 @@ public class AdjustStockCommandHandlerTests
         _stockRepository = new Mock<IStockRepository>();
         _warehouseRepository = new Mock<IBaseRepository<Entities.Warehouse>>();
         _productRepository = new Mock<IBaseRepository<Entities.Product>>();
-        _handler = new AdjustStockCommandHandler(_stockRepository.Object, _warehouseRepository.Object, _productRepository.Object);
+        _handler = new AdjustStockCommandHandler(_stockRepository.Object, _warehouseRepository.Object, _productRepository.Object, TestAccess.Administrator());
     }
 
     [Test]

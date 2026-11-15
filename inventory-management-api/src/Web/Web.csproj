@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>Inventory_Management.Web</RootNamespace>
     <AssemblyName>Inventory_Management.Web</AssemblyName>
+    <UserSecretsId>7a11362f-713a-4a8e-adb4-ebe5edfc1cc2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
     <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />

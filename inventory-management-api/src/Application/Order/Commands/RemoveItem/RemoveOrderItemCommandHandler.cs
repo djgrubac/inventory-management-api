@@ -1,5 +1,6 @@
 using ValidationException = Inventory_Management.Application.Common.Exceptions.ValidationException;
 using Inventory_Management.Application.Common.Interfaces;
+using Inventory_Management.Application.Common.Security;
 using Inventory_Management.Domain.Enums;
 
 namespace Microsoft.Extensions.DependencyInjection.Order.Commands.RemoveItem;
@@ -7,10 +8,12 @@ namespace Microsoft.Extensions.DependencyInjection.Order.Commands.RemoveItem;
 public class RemoveOrderItemCommandHandler : IRequestHandler<RemoveOrderItemCommand>
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly ICurrentUserAccess _access;
 
-    public RemoveOrderItemCommandHandler(IOrderRepository orderRepository)
+    public RemoveOrderItemCommandHandler(IOrderRepository orderRepository, ICurrentUserAccess access)
     {
         _orderRepository = orderRepository;
+        _access = access;
     }
 
     public async Task Handle(RemoveOrderItemCommand request, CancellationToken cancellationToken)
@@ -18,6 +21,7 @@ public class RemoveOrderItemCommandHandler : IRequestHandler<RemoveOrderItemComm
         // Validate order exists
         var order = await _orderRepository.GetByUidAsync(request.OrderUid)
                     ?? throw new NotFoundException(request.OrderUid.ToString(), "Order");
+        _access.EnsureCanWrite(order.WarehouseId, request.OrderUid.ToString(), "Order");
 
         // Prevent modification of completed or cancelled orders
         if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
