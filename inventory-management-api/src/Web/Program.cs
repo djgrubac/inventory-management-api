@@ -5,7 +5,6 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-// builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
 // Optionally, add services related to application, infrastructure, etc.
 builder.Services.AddApplicationServices();  // Assuming this includes services like sender, etc.
 builder.Services.AddInfrastructureServices(builder.Configuration);

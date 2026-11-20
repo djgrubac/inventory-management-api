@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Azure.Identity;
 using Inventory_Management.Application.Common.Interfaces;
 using Inventory_Management.Infrastructure.Data;
 using Inventory_Management.Web.Services;
@@ -112,18 +111,5 @@ public static class DependencyInjection
             identity.RemoveClaim(claim);
         if (user.Role is not null)
             identity.AddClaim(new Claim(identity.RoleClaimType, user.Role));
-    }
-
-    public static IServiceCollection AddKeyVaultIfConfigured(this IServiceCollection services, ConfigurationManager configuration)
-    {
-        var keyVaultUri = configuration["AZURE_KEY_VAULT_ENDPOINT"];
-        if (!string.IsNullOrWhiteSpace(keyVaultUri))
-        {
-            configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential());
-        }
-
-        return services;
     }
 }
